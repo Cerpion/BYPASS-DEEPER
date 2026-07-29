@@ -4,6 +4,7 @@ using UnityEngine.InputSystem.Controls;
 
 public class KeyboardInput : MonoBehaviour
 {
+    [SerializeField] private SequenceManager sequenceManager;
     void Update()
     {
         if (Keyboard.current == null)
@@ -13,7 +14,7 @@ public class KeyboardInput : MonoBehaviour
         {
             if (key.wasPressedThisFrame)
             {
-                Debug.Log("Tecla: " + key.displayName + " | Código: " + key.keyCode);
+                sequenceManager.CheckInput(key.keyCode);
             }
         }
     }
