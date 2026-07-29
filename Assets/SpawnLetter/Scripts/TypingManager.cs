@@ -48,7 +48,7 @@ public class TypingManager : MonoBehaviour
             }
             else
             {
-                activeWordNode.TriggerErrorEffect();
+                RegisterError(activeWordNode);
             }
         }
         else
@@ -77,43 +77,62 @@ public class TypingManager : MonoBehaviour
 
             if (!foundMatch && nodes.Length > 0)
             {
-                nodes[0].TriggerErrorEffect();
+                RegisterError(nodes[0]);
             }
         }
     }
 
-    private void OnWordCompleted()
-{
-    Debug.Log("¡Palabra Hackeada!");
-
-    if (activeWordNode != null)
+    private void RegisterError(WordNode nodeToGlitched)
     {
-        Vector3 spawnPos = activeWordNode.transform.position + new Vector3(0, 0, -1f);
-
-        if (floatingTextPrefab != null)
+        if (nodeToGlitched != null)
         {
-            GameObject floatObj = Instantiate(floatingTextPrefab, spawnPos, Quaternion.identity);
-            FloatingText floatScript = floatObj.GetComponent<FloatingText>();
-            if (floatScript != null)
-            {
-                floatScript.SetText("+10");
-            }
-        }
-
-        if (hackParticlesPrefab != null)
-        {
-            GameObject fx = Instantiate(hackParticlesPrefab, spawnPos, Quaternion.identity);
-            Destroy(fx, 1f);
+            nodeToGlitched.TriggerErrorEffect();
         }
 
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.AddScore(10);
+            GameManager.Instance.ResetCombo();
         }
 
-        GameObject wordToDestroy = activeWordNode.gameObject;
-        activeWordNode = null; 
-        Destroy(wordToDestroy);
+        if (CameraShake.Instance != null)
+        {
+            CameraShake.Instance.Shake(0.1f, 0.15f);
+        }
     }
-}
+
+    private void OnWordCompleted()
+    {
+        Debug.Log("¡Palabra Hackeada!");
+
+        if (activeWordNode != null)
+        {
+            Vector3 spawnPos = activeWordNode.transform.position + new Vector3(0, 0, -1f);
+
+            if (floatingTextPrefab != null)
+            {
+                GameObject floatObj = Instantiate(floatingTextPrefab, spawnPos, Quaternion.identity);
+                FloatingText floatScript = floatObj.GetComponent<FloatingText>();
+                if (floatScript != null)
+                {
+                    floatScript.SetText("+10");
+                }
+            }
+
+            if (hackParticlesPrefab != null)
+            {
+                GameObject fx = Instantiate(hackParticlesPrefab, spawnPos, Quaternion.identity);
+                Destroy(fx, 1f);
+            }
+
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.AddScore(10);
+            }
+
+            // 4. Destruir objeto y liberar referencia
+            GameObject wordToDestroy = activeWordNode.gameObject;
+            activeWordNode = null;
+            Destroy(wordToDestroy);
+        }
+    }
 }
