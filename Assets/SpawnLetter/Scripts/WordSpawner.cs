@@ -11,9 +11,18 @@ public class WordSpawner : MonoBehaviour
     public float spawnY = 6f;
 
     [Header("Palabras de la Deep Web")]
-    public string[] wordBank = { 
-        "SUDO", "BYPASS", "ROOT", "PROXY", "FIREWALL", 
-        "DARK", "NODE", "HASH", "ENCRYPT", "DEEP" 
+    public string[] wordBank =
+    {
+        "SUDO",
+        "BYPASS",
+        "ROOT",
+        "PROXY",
+        "FIREWALL",
+        "DARK",
+        "NODE",
+        "HASH",
+        "ENCRYPT",
+        "DEEP"
     };
 
     private void Start()
@@ -22,35 +31,48 @@ public class WordSpawner : MonoBehaviour
     }
 
     private IEnumerator SpawnRoutine()
-{
-    while (true)
     {
-        if (GameManager.Instance != null && GameManager.Instance.isGameOver)
+        while (true)
         {
-            yield break; 
-        }
+            if (GameManager.Instance != null && GameManager.Instance.isGameOver)
+                yield break;
 
-        float currentInterval = spawnInterval;
-        if (GameManager.Instance != null)
-        {
-            currentInterval = Mathf.Max(0.8f, spawnInterval - (GameManager.Instance.depthLevel * 0.2f));
-        }
+            float currentInterval = spawnInterval;
 
-        yield return new WaitForSeconds(currentInterval);
-        SpawnWord();
+            if (GameManager.Instance != null)
+            {
+                currentInterval = Mathf.Max(
+                    0.8f,
+                    spawnInterval - (GameManager.Instance.depthLevel * 0.2f));
+            }
+
+            yield return new WaitForSeconds(currentInterval);
+
+            SpawnWord();
+        }
     }
-}
+
     private void SpawnWord()
     {
-        if (wordPrefab == null || wordBank.Length == 0) return;
+        if (wordPrefab == null || wordBank.Length == 0)
+            return;
 
         float randomX = Random.Range(xMin, xMax);
-        Vector3 spawnPos = new Vector3(randomX, spawnY, 0f);
 
-        GameObject newWordObj = Instantiate(wordPrefab, spawnPos, Quaternion.identity);
-        WordNode node = newWordObj.GetComponent<WordNode>();
+        Vector3 spawnPos = new Vector3(randomX, spawnY, 0);
+
+        GameObject newWord = Instantiate(wordPrefab, spawnPos, Quaternion.identity);
+
+        WordNode node = newWord.GetComponent<WordNode>();
 
         string randomWord = wordBank[Random.Range(0, wordBank.Length)];
+
         node.SetWord(randomWord);
+        ShipController ship = FindFirstObjectByType<ShipController>();
+
+        if (ship != null && ship.GetTarget() == null)
+        {
+        ship.SetTarget(newWord.transform);
+        }
     }
 }

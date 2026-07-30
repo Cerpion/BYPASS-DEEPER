@@ -14,7 +14,7 @@ public class WordNode : MonoBehaviour
 
     void Awake()
     {
-        tmpText = GetComponent<TMP_Text>();
+    tmpText = GetComponentInChildren<TMP_Text>();
     }
 
     public void SetWord(string word)

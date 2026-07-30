@@ -9,7 +9,7 @@ public class TypingManager : MonoBehaviour
     [Header("Efectos Visuales")]
     public GameObject floatingTextPrefab;
     public GameObject hackParticlesPrefab;
-
+    [SerializeField] private ShipController shipController;
     private void OnEnable()
     {
         if (Keyboard.current != null)
@@ -37,17 +37,21 @@ public class TypingManager : MonoBehaviour
     {
         if (activeWordNode != null)
         {
+            
             if (activeWordNode.GetNextLetter() == letter)
             {
+                
                 activeWordNode.TypeLetter();
 
                 if (activeWordNode.IsWordComplete())
                 {
+                    
                     OnWordCompleted();
                 }
             }
             else
             {
+                
                 RegisterError(activeWordNode);
             }
         }
@@ -64,6 +68,10 @@ public class TypingManager : MonoBehaviour
                 if (node != null && !node.IsWordComplete() && node.GetNextLetter() == letter)
                 {
                     activeWordNode = node;
+                    if (shipController != null)
+                    {
+                    shipController.SetTarget(activeWordNode.transform);
+                    }
                     activeWordNode.TypeLetter();
                     foundMatch = true;
 
@@ -129,10 +137,15 @@ public class TypingManager : MonoBehaviour
                 GameManager.Instance.AddScore(10);
             }
 
+            if (shipController != null)
+            {
+                shipController.Shoot();
+            }
+
             // 4. Destruir objeto y liberar referencia
-            GameObject wordToDestroy = activeWordNode.gameObject;
-            activeWordNode = null;
-            Destroy(wordToDestroy);
+           // GameObject wordToDestroy = activeWordNode.gameObject;
+            //activeWordNode = null;
+           // Destroy(wordToDestroy);
         }
     }
 }
