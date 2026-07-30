@@ -109,43 +109,40 @@ public class TypingManager : MonoBehaviour
     }
 
     private void OnWordCompleted()
+{
+    if (activeWordNode != null)
     {
-        Debug.Log("¡Palabra Hackeada!");
+        Vector3 spawnPos = activeWordNode.transform.position + new Vector3(0, 0, -1f);
 
-        if (activeWordNode != null)
+        if (floatingTextPrefab != null)
         {
-            Vector3 spawnPos = activeWordNode.transform.position + new Vector3(0, 0, -1f);
+            GameObject floatObj = Instantiate(floatingTextPrefab, spawnPos, Quaternion.identity);
+            FloatingText floatScript = floatObj.GetComponent<FloatingText>();
 
-            if (floatingTextPrefab != null)
+            if (floatScript != null)
             {
-                GameObject floatObj = Instantiate(floatingTextPrefab, spawnPos, Quaternion.identity);
-                FloatingText floatScript = floatObj.GetComponent<FloatingText>();
-                if (floatScript != null)
-                {
-                    floatScript.SetText("+10");
-                }
+                floatScript.SetText("+10");
             }
-
-            if (hackParticlesPrefab != null)
-            {
-                GameObject fx = Instantiate(hackParticlesPrefab, spawnPos, Quaternion.identity);
-                Destroy(fx, 1f);
-            }
-
-            if (GameManager.Instance != null)
-            {
-                GameManager.Instance.AddScore(10);
-            }
-
-            if (shipController != null)
-            {
-                shipController.Shoot();
-            }
-
-            // 4. Destruir objeto y liberar referencia
-           // GameObject wordToDestroy = activeWordNode.gameObject;
-            //activeWordNode = null;
-           // Destroy(wordToDestroy);
         }
+
+        if (hackParticlesPrefab != null)
+        {
+            GameObject fx = Instantiate(hackParticlesPrefab, spawnPos, Quaternion.identity);
+            Destroy(fx, 1f);
+        }
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.AddScore(10);
+        }
+
+        if (shipController != null)
+        {
+            shipController.Shoot();
+            shipController.ClearTarget();
+        }
+
+        activeWordNode = null;
     }
+}
 }
