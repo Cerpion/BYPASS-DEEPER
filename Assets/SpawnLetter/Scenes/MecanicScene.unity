@@ -690,6 +690,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 523756908}
   m_CullTransparentMesh: 1
+--- !u!4 &665087085 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1100904444254395253, guid: 5b1d8e34d2df85643bebe2400e630a26, type: 3}
+  m_PrefabInstance: {fileID: 1284215495}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &676827565
 GameObject:
   m_ObjectHideFlags: 0
@@ -769,6 +774,27 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &814954770 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6521921030193997303, guid: 5b1d8e34d2df85643bebe2400e630a26, type: 3}
+  m_PrefabInstance: {fileID: 1284215495}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &814954771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 814954770}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 619970091cce1c84f87e3e06b2d827b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShipController
+  moveSpeed: 6
+  offsetY: -1.5
+  firePoint: {fileID: 665087085}
+  projectilePrefab: {fileID: 4683551373027004546, guid: ed2dd89b5ed890b409c4838ed1ab0ca1, type: 3}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -920,13 +946,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 79462366098589066, guid: 5b1d8e34d2df85643bebe2400e630a26, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: d521d1fa3e7e7b9489f3d2f931cbd4b8, type: 2}
     - target: {fileID: 2063946752216558717, guid: 5b1d8e34d2df85643bebe2400e630a26, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 19.700645
+      value: -1.54
       objectReference: {fileID: 0}
     - target: {fileID: 2063946752216558717, guid: 5b1d8e34d2df85643bebe2400e630a26, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.4868
+      value: -0.18
       objectReference: {fileID: 0}
     - target: {fileID: 2063946752216558717, guid: 5b1d8e34d2df85643bebe2400e630a26, type: 3}
       propertyPath: m_LocalPosition.z
@@ -964,10 +994,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ship
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 712935383678913585, guid: 5b1d8e34d2df85643bebe2400e630a26, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6521921030193997303, guid: 5b1d8e34d2df85643bebe2400e630a26, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 814954771}
   m_SourcePrefab: {fileID: 100100000, guid: 5b1d8e34d2df85643bebe2400e630a26, type: 3}
 --- !u!1 &1457504218
 GameObject:
@@ -1000,6 +1034,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TypingManager
   floatingTextPrefab: {fileID: 6155903762514890206, guid: dff99d3dad5201e47a296325a2f18ddc, type: 3}
   hackParticlesPrefab: {fileID: 3869222076404025158, guid: 65d3e7427c413ea46b17535dae5601f7, type: 3}
+  shipController: {fileID: 0}
 --- !u!4 &1457504220
 Transform:
   m_ObjectHideFlags: 0

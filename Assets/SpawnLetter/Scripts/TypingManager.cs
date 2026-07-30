@@ -10,6 +10,8 @@ public class TypingManager : MonoBehaviour
     public GameObject floatingTextPrefab;
     public GameObject hackParticlesPrefab;
 
+    [SerializeField] private ShipController shipController;
+
     private void OnEnable()
     {
         if (Keyboard.current != null)
@@ -28,7 +30,8 @@ public class TypingManager : MonoBehaviour
 
     private void OnTextInput(char ch)
     {
-        if (GameManager.Instance != null && GameManager.Instance.isGameOver) return;
+        if (GameManager.Instance != null && GameManager.Instance.isGameOver)
+            return;
 
         ProcessInput(char.ToUpper(ch));
     }
@@ -61,9 +64,18 @@ public class TypingManager : MonoBehaviour
 
             foreach (WordNode node in nodes)
             {
-                if (node != null && !node.IsWordComplete() && node.GetNextLetter() == letter)
+                if (node != null &&
+                    !node.IsWordComplete() &&
+                    node.GetNextLetter() == letter)
                 {
                     activeWordNode = node;
+
+                    if (shipController != null)
+                    {
+                        Debug.Log("ShipController: " + shipController);
+                        shipController.SetTarget(activeWordNode.transform);
+                    }
+
                     activeWordNode.TypeLetter();
                     foundMatch = true;
 
@@ -71,6 +83,7 @@ public class TypingManager : MonoBehaviour
                     {
                         OnWordCompleted();
                     }
+
                     break;
                 }
             }
@@ -100,47 +113,42 @@ public class TypingManager : MonoBehaviour
         }
     }
 
-   private void OnWordCompleted()
+    private void OnWordCompleted()
     {
-        if (activeWordNode != null)
+        if (activeWordNode == null)
+            return;
+
+        Vector3 spawnPos = activeWordNode.transform.position + new Vector3(0, 0, -1f);
+
+        if (floatingTextPrefab != null)
         {
-            Vector3 spawnPos = new Vector3(activeWordNode.transform.position.x, activeWordNode.transform.position.y, -2f);
+            GameObject floatObj = Instantiate(floatingTextPrefab, spawnPos, Quaternion.identity);
 
-            if (hackParticlesPrefab != null)
-            {
-                GameObject fx = Instantiate(hackParticlesPrefab, spawnPos, Quaternion.identity);
-                fx.transform.localScale = Vector3.one;
-                Destroy(fx, 2f);
-            }
-            else
-            {
-                Debug.LogWarning(" ATENCIÓN: Falta asignar 'Hack Particles Prefab' en el TypingManager.");
-            }
+            FloatingText floatScript = floatObj.GetComponent<FloatingText>();
 
-            if (floatingTextPrefab != null)
+            if (floatScript != null)
             {
-                Vector3 textSpawnPos = activeWordNode.transform.position;
-                GameObject floatObj = Instantiate(floatingTextPrefab, textSpawnPos, Quaternion.identity);
-                floatObj.transform.localScale = Vector3.one;
-                FloatingText floatScript = floatObj.GetComponent<FloatingText>();
-                if (floatScript != null)
-                {
-                    floatScript.SetText("+10");
-                }
+                floatScript.SetText("+10");
             }
-            else
-            {
-                Debug.LogWarning("⚠️ ATENCIÓN: Falta asignar 'Floating Text Prefab' en el TypingManager.");
-            }
-
-            if (GameManager.Instance != null)
-            {
-                GameManager.Instance.AddScore(10);
-            }
-
-            GameObject wordToDestroy = activeWordNode.gameObject;
-            activeWordNode = null;
-            Destroy(wordToDestroy);
         }
+
+        if (hackParticlesPrefab != null)
+        {
+            GameObject fx = Instantiate(hackParticlesPrefab, spawnPos, Quaternion.identity);
+            Destroy(fx, 1f);
+        }
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.AddScore(10);
+        }
+
+        if (shipController != null)
+        {
+            shipController.Shoot();
+            
+        }
+
+        activeWordNode = null;
     }
 }
