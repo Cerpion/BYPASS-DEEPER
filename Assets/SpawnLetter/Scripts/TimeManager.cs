@@ -5,63 +5,63 @@ public class TimeManager : MonoBehaviour
 {
     public static TimeManager Instance;
 
-    [SerializeField] private TMP_Text timeText;
-    [SerializeField] private float startTime = 60f;
+    [Header("UI")]
+    public TMP_Text timeText;
 
-    private float currentTime;
-    private bool gameEnded;
+    private float survivalTime;
+    private bool timerRunning = true;
 
     private void Awake()
     {
         Instance = this;
     }
 
-    void Start()
+    private void Update()
     {
-        currentTime = startTime;
-        UpdateUI();
-    }
-
-    void Update()
-    {
-        if (gameEnded)
+        if (!timerRunning)
             return;
 
-        currentTime -= Time.deltaTime;
-
-        if (currentTime <= 0)
-        {
-            currentTime = 0;
-            GameOver();
-        }
+        survivalTime += Time.deltaTime;
 
         UpdateUI();
     }
 
     void UpdateUI()
     {
-        timeText.text = "Time: " + Mathf.CeilToInt(currentTime);
+        int minutes = Mathf.FloorToInt(survivalTime / 60);
+        int seconds = Mathf.FloorToInt(survivalTime % 60);
+
+        timeText.text = $"TIME {minutes:00}:{seconds:00}";
     }
 
-    public void RemoveTime(float amount)
+  public void StopTimer()
+{
+    timerRunning = false;
+
+    Debug.Log("===== STOP TIMER EJECUTADO =====");
+
+    float bestTime = PlayerPrefs.GetFloat("BestTime", 0f);
+
+    Debug.Log("Tiempo actual: " + survivalTime);
+
+    if (survivalTime > bestTime)
     {
-        if (gameEnded)
-            return;
-
-        currentTime -= amount;
-
-        if (currentTime <= 0)
-        {
-            currentTime = 0;
-            GameOver();
-        }
-
-        UpdateUI();
+        bestTime = survivalTime;
+        PlayerPrefs.SetFloat("BestTime", bestTime);
+        PlayerPrefs.Save();
     }
 
-    void GameOver()
+    Debug.Log("Mejor tiempo: " + bestTime);
+
+    if (GameOverManager.Instance != null)
     {
-        gameEnded = true;
-        Debug.Log("GAME OVER");
+        Debug.Log("Enviando tiempos al GameOver");
+        GameOverManager.Instance.SetTimes(survivalTime, bestTime);
+    }
+}
+
+    public float GetCurrentTime()
+    {
+        return survivalTime;
     }
 }
