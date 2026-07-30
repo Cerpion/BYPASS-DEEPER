@@ -28,7 +28,8 @@ public class TypingManager : MonoBehaviour
 
     private void OnTextInput(char ch)
     {
-        if (GameManager.Instance != null && GameManager.Instance.isGameOver) return;
+        if (GameManager.Instance != null && GameManager.Instance.isGameOver)
+            return;
 
         ProcessInput(char.ToUpper(ch));
     }
@@ -54,23 +55,33 @@ public class TypingManager : MonoBehaviour
         else
         {
             WordNode[] nodes = FindObjectsByType<WordNode>(FindObjectsSortMode.None)
-                                .OrderBy(n => n.transform.position.y)
-                                .ToArray();
+                .OrderBy(n => n.transform.position.y)
+                .ToArray();
 
             bool foundMatch = false;
 
             foreach (WordNode node in nodes)
             {
-                if (node != null && !node.IsWordComplete() && node.GetNextLetter() == letter)
+                if (node != null &&
+                    !node.IsWordComplete() &&
+                    node.GetNextLetter() == letter)
                 {
                     activeWordNode = node;
+
+                    // La nave sigue la palabra seleccionada
+                    if (ShipController.Instance != null)
+                    {
+                        ShipController.Instance.SetTarget(activeWordNode.transform);
+                    }
+
                     activeWordNode.TypeLetter();
-                    foundMatch = true;
 
                     if (activeWordNode.IsWordComplete())
                     {
                         OnWordCompleted();
                     }
+
+                    foundMatch = true;
                     break;
                 }
             }
@@ -100,47 +111,68 @@ public class TypingManager : MonoBehaviour
         }
     }
 
-   private void OnWordCompleted()
+    private void OnWordCompleted()
     {
-        if (activeWordNode != null)
+        if (activeWordNode == null)
+            return;
+
+        // Disparar desde la nave
+        if (ShipController.Instance != null)
         {
-            Vector3 spawnPos = new Vector3(activeWordNode.transform.position.x, activeWordNode.transform.position.y, -2f);
-
-            if (hackParticlesPrefab != null)
-            {
-                GameObject fx = Instantiate(hackParticlesPrefab, spawnPos, Quaternion.identity);
-                fx.transform.localScale = Vector3.one;
-                Destroy(fx, 2f);
-            }
-            else
-            {
-                Debug.LogWarning(" ATENCIÓN: Falta asignar 'Hack Particles Prefab' en el TypingManager.");
-            }
-
-            if (floatingTextPrefab != null)
-            {
-                Vector3 textSpawnPos = activeWordNode.transform.position;
-                GameObject floatObj = Instantiate(floatingTextPrefab, textSpawnPos, Quaternion.identity);
-                floatObj.transform.localScale = Vector3.one;
-                FloatingText floatScript = floatObj.GetComponent<FloatingText>();
-                if (floatScript != null)
-                {
-                    floatScript.SetText("+10");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("⚠️ ATENCIÓN: Falta asignar 'Floating Text Prefab' en el TypingManager.");
-            }
-
-            if (GameManager.Instance != null)
-            {
-                GameManager.Instance.AddScore(10);
-            }
-
-            GameObject wordToDestroy = activeWordNode.gameObject;
-            activeWordNode = null;
-            Destroy(wordToDestroy);
+            ShipController.Instance.Shoot();
+            ShipController.Instance.ClearTarget();
         }
+
+        Vector3 spawnPos = new Vector3(
+            activeWordNode.transform.position.x,
+            activeWordNode.transform.position.y,
+            -2f);
+
+        if (hackParticlesPrefab != null)
+        {
+            GameObject fx = Instantiate(
+                hackParticlesPrefab,
+                spawnPos,
+                Quaternion.identity);
+
+            fx.transform.localScale = Vector3.one;
+            Destroy(fx, 2f);
+        }
+        else
+        {
+            Debug.LogWarning("Falta asignar Hack Particles Prefab.");
+        }
+
+        if (floatingTextPrefab != null)
+        {
+            GameObject floatObj = Instantiate(
+                floatingTextPrefab,
+                activeWordNode.transform.position,
+                Quaternion.identity);
+
+            floatObj.transform.localScale = Vector3.one;
+
+            FloatingText floatScript = floatObj.GetComponent<FloatingText>();
+
+            if (floatScript != null)
+            {
+                floatScript.SetText("+10");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Falta asignar Floating Text Prefab.");
+        }
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.AddScore(10);
+        }
+
+        GameObject wordToDestroy = activeWordNode.gameObject;
+
+        activeWordNode = null;
+
+        Destroy(wordToDestroy);
     }
 }
