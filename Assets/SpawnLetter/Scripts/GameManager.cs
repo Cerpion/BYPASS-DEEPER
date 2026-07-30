@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using TMPro;
 
@@ -17,11 +18,14 @@ public class GameManager : MonoBehaviour
     [Header("Estado del Juego")]
     public bool isGameOver = false;
 
-    [Header("UI (Opcional)")]
+    [Header("UI General")]
     public TMP_Text scoreText;
     public TMP_Text livesText;
     public TMP_Text depthText;
     public TMP_Text comboText;
+
+    [Header("UI de Capas (Deep Web)")]
+    public TMP_Text layerAnnouncementText;
 
     private void Awake()
     {
@@ -33,21 +37,43 @@ public class GameManager : MonoBehaviour
     {
         isGameOver = false;
         Time.timeScale = 1f;
+
+        if (layerAnnouncementText != null)
+        {
+            layerAnnouncementText.gameObject.SetActive(false);
+            StartCoroutine(AnnounceLayerRoutine());
+        }
+
         UpdateUI();
+    }
+
+    public float GetDifficultyMultiplier()
+    {
+        if (depthLevel == 1) return 0.25f;
+        if (depthLevel == 2) return 0.50f;
+        if (depthLevel == 3) return 0.75f;
+        return 1.0f;
     }
 
     public void AddScore(int basePoints)
     {
         if (isGameOver) return;
-        currentCombo++;
-        comboMultiplier = 1 + (currentCombo / 5); 
-        int finalPoints = basePoints * comboMultiplier;
-        score += finalPoints;
 
-        if (score >= depthLevel * 50)
+        currentCombo++;
+        comboMultiplier = 1 + (currentCombo / 5);
+        score += (basePoints * comboMultiplier);
+
+        if (score >= depthLevel * 100 && depthLevel < 4)
         {
             depthLevel++;
-            Debug.Log($"¡Descendiendo a la Capa {depthLevel}!");
+            if (layerAnnouncementText != null)
+            {
+                StartCoroutine(AnnounceLayerRoutine());
+            }
+            else
+            {
+                Debug.Log($"¡AVANZANDO A CAPA -{depthLevel}!");
+            }
         }
 
         UpdateUI();
@@ -57,7 +83,6 @@ public class GameManager : MonoBehaviour
     {
         if (currentCombo > 0)
         {
-            Debug.Log("¡Combo perdido!");
             currentCombo = 0;
             comboMultiplier = 1;
             UpdateUI();
@@ -70,18 +95,10 @@ public class GameManager : MonoBehaviour
 
         ResetCombo();
         lives -= damage;
-
-        if (CameraShake.Instance != null)
-        {
-            CameraShake.Instance.Shake(0.3f, 0.4f);
-        }
+        if (CameraShake.Instance != null) CameraShake.Instance.Shake(0.3f, 0.4f);
 
         UpdateUI();
-
-        if (lives <= 0)
-        {
-            GameOver();
-        }
+        if (lives <= 0) GameOver();
     }
 
     private void UpdateUI()
@@ -92,10 +109,26 @@ public class GameManager : MonoBehaviour
         if (comboText != null) comboText.text = $"COMBO: x{comboMultiplier}";
     }
 
+  private IEnumerator AnnounceLayerRoutine()
+    {
+        if (layerAnnouncementText == null) yield break;
+
+        layerAnnouncementText.text = $"LAYER -{depthLevel}\n<size=50%>{(GetDifficultyMultiplier() * 100)}% SPEED</size>";
+        layerAnnouncementText.gameObject.SetActive(true);
+
+        yield return new WaitForSeconds(2.5f);
+
+        layerAnnouncementText.gameObject.SetActive(false);
+    } 
+
     private void GameOver()
     {
         isGameOver = true;
-        Debug.Log(">>> SYSTEM FAILURE - GAME OVER <<<");
+        
+        Debug.LogError("<color=red><size=20>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</size></color>");
+        Debug.LogError("<color=red><size=25>>>> CYBER-LIFE TERMINATED - GAME OVER <<<</size></color>");
+        Debug.LogError("<color=red><size=20>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</size></color>");
+        
         Time.timeScale = 0f;
     }
-}
+} 

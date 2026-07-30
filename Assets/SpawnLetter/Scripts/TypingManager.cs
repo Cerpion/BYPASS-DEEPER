@@ -100,28 +100,37 @@ public class TypingManager : MonoBehaviour
         }
     }
 
-    private void OnWordCompleted()
+   private void OnWordCompleted()
     {
-        Debug.Log("¡Palabra Hackeada!");
-
         if (activeWordNode != null)
         {
-            Vector3 spawnPos = activeWordNode.transform.position + new Vector3(0, 0, -1f);
+            Vector3 spawnPos = new Vector3(activeWordNode.transform.position.x, activeWordNode.transform.position.y, -2f);
+
+            if (hackParticlesPrefab != null)
+            {
+                GameObject fx = Instantiate(hackParticlesPrefab, spawnPos, Quaternion.identity);
+                fx.transform.localScale = Vector3.one;
+                Destroy(fx, 2f);
+            }
+            else
+            {
+                Debug.LogWarning(" ATENCIÓN: Falta asignar 'Hack Particles Prefab' en el TypingManager.");
+            }
 
             if (floatingTextPrefab != null)
             {
-                GameObject floatObj = Instantiate(floatingTextPrefab, spawnPos, Quaternion.identity);
+                Vector3 textSpawnPos = activeWordNode.transform.position;
+                GameObject floatObj = Instantiate(floatingTextPrefab, textSpawnPos, Quaternion.identity);
+                floatObj.transform.localScale = Vector3.one;
                 FloatingText floatScript = floatObj.GetComponent<FloatingText>();
                 if (floatScript != null)
                 {
                     floatScript.SetText("+10");
                 }
             }
-
-            if (hackParticlesPrefab != null)
+            else
             {
-                GameObject fx = Instantiate(hackParticlesPrefab, spawnPos, Quaternion.identity);
-                Destroy(fx, 1f);
+                Debug.LogWarning("⚠️ ATENCIÓN: Falta asignar 'Floating Text Prefab' en el TypingManager.");
             }
 
             if (GameManager.Instance != null)
@@ -129,7 +138,6 @@ public class TypingManager : MonoBehaviour
                 GameManager.Instance.AddScore(10);
             }
 
-            // 4. Destruir objeto y liberar referencia
             GameObject wordToDestroy = activeWordNode.gameObject;
             activeWordNode = null;
             Destroy(wordToDestroy);

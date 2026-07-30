@@ -1,34 +1,36 @@
-using System.Collections;
 using UnityEngine;
 using TMPro;
 
+public enum WordType { Normal, Heal, Freeze, Glitch }
+
 public class WordNode : MonoBehaviour
 {
+    public string originalWord;
+    public int characterIndex = 0;
+    public WordType myType = WordType.Normal; 
+
+    [Header("Movimiento y Límites")]
     public float fallSpeed = 2f;
-    private string originalWord;
-    private int characterIndex = 0;
-    private TMP_Text tmpText;
+    public float destroyY = -4.5f;
 
-    private bool isShaking = false;
-    private Vector3 originalLocalPos;
+    [HideInInspector]
+    public TMP_Text wordText;
 
-    void Awake()
+    private void Awake()
     {
-        tmpText = GetComponent<TMP_Text>();
+        if (wordText == null)
+        {
+            wordText = GetComponent<TMP_Text>();
+        }
     }
 
-    public void SetWord(string word)
+    private void Update()
     {
-        originalWord = word.ToUpper();
-        characterIndex = 0;
-        UpdateTextDisplay(false);
-    }
+        if (GameManager.Instance != null && GameManager.Instance.isGameOver) return;
 
-    void Update()
-    {
-        transform.Translate(Vector3.down * fallSpeed * Time.deltaTime);
+        transform.Translate(Vector3.down * fallSpeed * Time.deltaTime, Space.World);
 
-        if (transform.position.y < -5f)
+        if (transform.position.y < destroyY)
         {
             if (GameManager.Instance != null)
             {
@@ -38,10 +40,35 @@ public class WordNode : MonoBehaviour
         }
     }
 
+    public void SetWord(string word)
+    {
+        originalWord = word.ToUpper();
+        characterIndex = 0;
+        
+        if (wordText == null) wordText = GetComponent<TMP_Text>();
+        UpdateTextDisplay(false);
+    }
+
+    public void SetupSpecialType(WordType newType)
+    {
+        myType = newType;
+        if (wordText == null) wordText = GetComponent<TMP_Text>();
+
+        if (wordText != null)
+        {
+            switch (myType)
+            {
+                case WordType.Normal: wordText.color = Color.white; break;
+                case WordType.Heal: wordText.color = Color.green; break;
+                case WordType.Freeze: wordText.color = Color.cyan; break;
+                case WordType.Glitch: wordText.color = Color.magenta; break;
+            }
+        }
+    }
+
     public char GetNextLetter()
     {
-        if (characterIndex >= originalWord.Length) return '\0';
-        return originalWord[characterIndex];
+        return characterIndex < originalWord.Length ? originalWord[characterIndex] : '\0';
     }
 
     public void TypeLetter()
@@ -50,67 +77,29 @@ public class WordNode : MonoBehaviour
         UpdateTextDisplay(false);
     }
 
-    public void TriggerErrorEffect()
-    {
-        if (!isShaking)
-        {
-            StartCoroutine(ErrorShakeRoutine());
-        }
-    }
-
-    private IEnumerator ErrorShakeRoutine()
-    {
-        isShaking = true;
-        Vector3 startPos = transform.position;
-        float duration = 0.15f; 
-        float elapsed = 0f;
-
-        UpdateTextDisplay(showError: true);
-
-        while (elapsed < duration)
-        {
-            float offsetX = Random.Range(-0.15f, 0.15f);
-            float offsetY = Random.Range(-0.15f, 0.15f);
-            transform.position = startPos + new Vector3(offsetX, offsetY, 0);
-
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        UpdateTextDisplay(showError: false);
-        isShaking = false;
-    }
-
     public bool IsWordComplete()
     {
         return characterIndex >= originalWord.Length;
     }
 
-    private void UpdateTextDisplay(bool showError)
+    public void TriggerErrorEffect()
     {
-        if (tmpText == null) return;
-
-        string typedPart = $"<color=#00FF00>{originalWord.Substring(0, characterIndex)}</color>";
-        
-        if (characterIndex < originalWord.Length)
-        {
-            char current = originalWord[characterIndex];
-            string rest = originalWord.Substring(characterIndex + 1);
-
-            if (showError)
-            {
-                tmpText.text = $"{typedPart}<color=#FF0000>{current}</color>{rest}";
-            }
-            else
-            {
-                tmpText.text = $"{typedPart}{current}{rest}";
-            }
-        }
-        else
-        {
-            tmpText.text = typedPart;
-        }
+        UpdateTextDisplay(true);
     }
 
-    public string GetOriginalWord() => originalWord;
+    public void UpdateTextDisplay(bool hasError)
+    {
+        if (wordText == null)
+        {
+            wordText = GetComponent<TMP_Text>();
+            if (wordText == null) return;
+        }
+
+        int safeIndex = Mathf.Clamp(characterIndex, 0, originalWord.Length);
+        string typedPart = originalWord.Substring(0, safeIndex);
+        string untypedPart = originalWord.Substring(safeIndex);
+
+        string colorHex = hasError ? "#FF0000" : "#55FF55"; 
+        wordText.text = $"<color={colorHex}>{typedPart}</color>{untypedPart}";
+    }
 }
