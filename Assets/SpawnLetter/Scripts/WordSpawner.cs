@@ -4,7 +4,7 @@ using UnityEngine;
 public class WordSpawner : MonoBehaviour
 {
     public GameObject wordPrefab;
-    public float xBound = 5f;
+    public float xBound = 5f; 
 
     [Header("Bancos de Palabras de la Deep Web")]
     public string[] layer1Words = { "PING", "DATA", "NODE", "PORT", "HTML", "IP", "MAC", "USER" };
@@ -35,7 +35,6 @@ public class WordSpawner : MonoBehaviour
             SpawnWord();
 
             float difficulty = 0.25f;
-
             if (GameManager.Instance != null)
             {
                 difficulty = GameManager.Instance.GetDifficultyMultiplier();
@@ -46,7 +45,7 @@ public class WordSpawner : MonoBehaviour
         }
     }
 
-    private void SpawnWord()
+   private void SpawnWord()
     {
         if (wordPrefab == null)
         {
@@ -58,7 +57,7 @@ public class WordSpawner : MonoBehaviour
         Vector3 spawnPosition = new Vector3(randomX, transform.position.y, 0f);
 
         GameObject newWordObj = Instantiate(wordPrefab, spawnPosition, Quaternion.identity);
-
+        
         newWordObj.transform.SetParent(null);
 
         WordNode wordNode = newWordObj.GetComponent<WordNode>();
@@ -69,17 +68,17 @@ public class WordSpawner : MonoBehaviour
             WordType chosenType = WordType.Normal;
             string selectedWord = "DATA";
 
-            if (roll < 0.15f && healWords.Length > 0)
+            if (roll < 0.15f && healWords != null && healWords.Length > 0)
             {
                 chosenType = WordType.Heal;
                 selectedWord = healWords[Random.Range(0, healWords.Length)];
             }
-            else if (roll < 0.30f && freezeWords.Length > 0)
+            else if (roll < 0.30f && freezeWords != null && freezeWords.Length > 0)
             {
                 chosenType = WordType.Freeze;
                 selectedWord = freezeWords[Random.Range(0, freezeWords.Length)];
             }
-            else if (roll < 0.45f && glitchWords.Length > 0)
+            else if (roll < 0.45f && glitchWords != null && glitchWords.Length > 0)
             {
                 chosenType = WordType.Glitch;
                 selectedWord = glitchWords[Random.Range(0, glitchWords.Length)];
@@ -94,11 +93,9 @@ public class WordSpawner : MonoBehaviour
             wordNode.SetupSpecialType(chosenType);
         }
     }
-
     private string GetRandomWordForCurrentLayer()
     {
         int layer = 1;
-
         if (GameManager.Instance != null)
         {
             layer = GameManager.Instance.depthLevel;
@@ -106,17 +103,14 @@ public class WordSpawner : MonoBehaviour
 
         switch (layer)
         {
-            case 1:
-                return layer1Words[Random.Range(0, layer1Words.Length)];
-
-            case 2:
-                return layer2Words[Random.Range(0, layer2Words.Length)];
-
-            case 3:
-                return layer3Words[Random.Range(0, layer3Words.Length)];
-
-            default:
-                return layer4Words[Random.Range(0, layer4Words.Length)];
+            case 1: 
+                return layer1Words.Length > 0 ? layer1Words[Random.Range(0, layer1Words.Length)] : "DATA";
+            case 2: 
+                return layer2Words.Length > 0 ? layer2Words[Random.Range(0, layer2Words.Length)] : "SERVER";
+            case 3: 
+                return layer3Words.Length > 0 ? layer3Words[Random.Range(0, layer3Words.Length)] : "SYSTEM";
+            case 4: default: 
+                return layer4Words.Length > 0 ? layer4Words[Random.Range(0, layer4Words.Length)] : "HACK";
         }
     }
 }
