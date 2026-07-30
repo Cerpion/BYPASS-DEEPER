@@ -2,25 +2,33 @@ using UnityEngine;
 
 public class ShipController : MonoBehaviour
 {
-    [Header("Movimiento")]
-    [SerializeField] private float moveSpeed = 6f;
+    public static ShipController Instance;
 
-    [Header("Posición debajo de la palabra")]
-    [SerializeField] private float offsetY = -1.5f;
+    [Header("Movimiento")]
+    public float moveSpeed = 8f;
+
+    [Tooltip("Distancia que la nave mantiene debajo de la palabra")]
+    public float followOffset = 1.8f;
 
     [Header("Disparo")]
-    [SerializeField] private Transform firePoint;
-    [SerializeField] private GameObject projectilePrefab;
+    public GameObject projectilePrefab;
+    public Transform firePoint;
 
-    private Transform target;
+    private Transform currentTarget;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Update()
     {
-        if (target == null)
+        if (currentTarget == null)
             return;
 
-        Vector3 destination = target.position;
-        destination.y += offsetY;
+        // Mantener la nave debajo de la palabra
+        Vector3 destination = currentTarget.position + Vector3.down * followOffset;
+        destination.z = transform.position.z;
 
         transform.position = Vector3.MoveTowards(
             transform.position,
@@ -28,68 +36,53 @@ public class ShipController : MonoBehaviour
             moveSpeed * Time.deltaTime
         );
     }
-
-
-    public void SetTarget(Transform newTarget)
+     public void SetTarget(Transform target)
     {
-        target = newTarget;
-        Debug.Log("Nuevo objetivo: " + target.name);
+        currentTarget = target;
     }
 
-
+   
     public Transform GetTarget()
     {
-        return target;
+        return currentTarget;
     }
-
-
-    public void Shoot()
-{
-    Debug.Log("Disparo ejecutado");
-
-    if (projectilePrefab == null)
-    {
-        Debug.Log("Falta Projectile Prefab");
-        return;
-    }
-
-    if (firePoint == null)
-    {
-        Debug.Log("Falta FirePoint");
-        return;
-    }
-
-    if (target == null)
-    {
-        Debug.Log("Falta Target");
-        return;
-    }
-
-
-    GameObject projectile = Instantiate(
-        projectilePrefab,
-        firePoint.position,
-        Quaternion.identity
-    );
-
-
-    Debug.Log("Proyectil creado: " + projectile.name);
-
-
-    Projectile projectileScript = projectile.GetComponent<Projectile>();
-
-    if (projectileScript != null)
-    {
-        projectileScript.SetTarget(target);
-    }
-    else
-    {
-        Debug.Log("El prefab no tiene Projectile.cs");
-    }
-}
 
     public void ClearTarget()
     {
-        target = null;
+        currentTarget = null;
+    }
+
+    
+    public void Shoot()
+    {
+        if (projectilePrefab == null)
+        {
+            Debug.LogWarning("No hay Projectile Prefab asignado.");
+            return;
+        }
+
+        if (firePoint == null)
+        {
+            Debug.LogWarning("No hay FirePoint asignado.");
+            return;
+        }
+
+        if (currentTarget == null)
+        {
+            Debug.LogWarning("No hay objetivo para disparar.");
+            return;
+        }
+
+        GameObject projectile = Instantiate(
+            projectilePrefab,
+            firePoint.position,
+            Quaternion.identity);
+
+        Projectile projectileScript = projectile.GetComponent<Projectile>();
+
+        if (projectileScript != null)
+        {
+            projectileScript.SetTarget(currentTarget);
+        }
     }
 }

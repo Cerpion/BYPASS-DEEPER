@@ -125,6 +125,17 @@ public class GameManager : MonoBehaviour
 {
     isGameOver = true;
 
+    // Detener el contador de tiempo
+    if (TimeManager.Instance != null)
+    {
+        Debug.Log("Llamando a StopTimer...");
+        TimeManager.Instance.StopTimer();
+    }
+    else
+    {
+        Debug.LogError("TimeManager.Instance es NULL");
+    }
+
     Debug.LogError("<color=red><size=20>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</size></color>");
     Debug.LogError("<color=red><size=25>>>> CYBER-LIFE TERMINATED - GAME OVER <<<</size></color>");
     Debug.LogError("<color=red><size=20>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</size></color>");
