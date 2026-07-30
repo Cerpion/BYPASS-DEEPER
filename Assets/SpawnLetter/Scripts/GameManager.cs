@@ -122,13 +122,16 @@ public class GameManager : MonoBehaviour
     } 
 
     private void GameOver()
+{
+    isGameOver = true;
+
+    Debug.LogError("<color=red><size=20>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</size></color>");
+    Debug.LogError("<color=red><size=25>>>> CYBER-LIFE TERMINATED - GAME OVER <<<</size></color>");
+    Debug.LogError("<color=red><size=20>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</size></color>");
+
+    if (GameOverManager.Instance != null)
     {
-        isGameOver = true;
-        
-        Debug.LogError("<color=red><size=20>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</size></color>");
-        Debug.LogError("<color=red><size=25>>>> CYBER-LIFE TERMINATED - GAME OVER <<<</size></color>");
-        Debug.LogError("<color=red><size=20>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</size></color>");
-        
-        Time.timeScale = 0f;
+        GameOverManager.Instance.ActivarGameOver();
     }
+}
 } 
