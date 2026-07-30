@@ -10,6 +10,10 @@ public class GameManager : MonoBehaviour
     public int lives = 3;
     public int depthLevel = 1;
 
+    [Header("Tiempo")]
+    public float startTime = 60f;
+    private float currentTime;
+
     [Header("Sistema de Combo")]
     public int currentCombo = 0;
     public int comboMultiplier = 1;
@@ -22,6 +26,7 @@ public class GameManager : MonoBehaviour
     public TMP_Text livesText;
     public TMP_Text depthText;
     public TMP_Text comboText;
+    public TMP_Text timerText;
 
     private void Awake()
     {
@@ -32,8 +37,25 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         isGameOver = false;
+        currentTime = startTime;
         Time.timeScale = 1f;
         UpdateUI();
+    }
+
+    private void Update()
+    {
+    if (isGameOver)
+        return;
+
+    currentTime -= Time.deltaTime;
+
+    if (currentTime <= 0)
+    {
+        currentTime = 0;
+        GameOver();
+    }
+
+    UpdateUI();
     }
 
     public void AddScore(int basePoints)
@@ -90,6 +112,10 @@ public class GameManager : MonoBehaviour
         if (livesText != null) livesText.text = $"INTEGRITY: {lives}";
         if (depthText != null) depthText.text = $"LAYER: -{depthLevel}";
         if (comboText != null) comboText.text = $"COMBO: x{comboMultiplier}";
+        if (timerText != null)
+        {
+            timerText.text = $"TIME: {Mathf.CeilToInt(currentTime)}";
+        }
     }
 
     private void GameOver()
