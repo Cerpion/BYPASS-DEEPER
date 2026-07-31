@@ -1,5 +1,7 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
+using System.Text;
 
 public enum WordType { Normal, Heal, Freeze, Glitch }
 
@@ -13,8 +15,16 @@ public class WordNode : MonoBehaviour
     public float fallSpeed = 2f;
     public float destroyY = -4.5f;
 
+    [Header("Duración de Efectos")]
+    public float freezeDuration = 3f;
+    public float glitchScrambleDuration = 0.3f;
+    public float healGlowDuration = 1f;
+
     [HideInInspector]
     public TMP_Text wordText;
+
+    private float originalFallSpeed;
+    private Coroutine freezeCoroutine;
 
     private void Awake()
     {
@@ -22,6 +32,8 @@ public class WordNode : MonoBehaviour
         {
             wordText = GetComponent<TMP_Text>();
         }
+
+        originalFallSpeed = fallSpeed;
     }
 
     private void Update()
@@ -109,31 +121,97 @@ public class WordNode : MonoBehaviour
                 if (GameManager.Instance != null)
                 {
                     GameManager.Instance.lives++;
-                    // Forzamos actualización de UI si es necesario o manejas vidas
                     Debug.Log("<color=green>¡HEAL ACTIVADO! Vida recuperada.</color>");
                 }
+
+                if (AsciiRainEffect.Instance != null)
+                    AsciiRainEffect.Instance.TriggerHeal(healGlowDuration);
                 break;
 
             case WordType.Freeze:
-                // Congela temporalmente todas las palabras bajando su velocidad a 0 o pausándolas
+                // Congela temporalmente todas las demás palabras: se tiñen de azul y dejan de moverse
                 WordNode[] allWords = FindObjectsOfType<WordNode>();
                 foreach (var w in allWords)
                 {
-                    if (w != this) w.fallSpeed = 0f;
+                    if (w != this) w.ApplyFreeze(freezeDuration);
                 }
+
+                if (AsciiRainEffect.Instance != null)
+                    AsciiRainEffect.Instance.TriggerFreeze(freezeDuration);
+
                 Debug.Log("<color=cyan>¡FREEZE ACTIVADO! Palabras congeladas.</color>");
                 break;
 
             case WordType.Glitch:
-                // Efecto bomba: destruye todas las demás palabras en pantalla al completarse
+                // Efecto bomba: las demás palabras se scramblean brevemente antes de destruirse
                 WordNode[] activeWords = FindObjectsOfType<WordNode>();
                 foreach (var w in activeWords)
                 {
-                    if (w != this) Destroy(w.gameObject);
+                    if (w != this) w.PlayGlitchAndDestroy(glitchScrambleDuration);
                 }
+
+                if (AsciiRainEffect.Instance != null)
+                    AsciiRainEffect.Instance.TriggerGlitch(glitchScrambleDuration);
+
                 Debug.Log("<color=magenta>¡GLITCH ACTIVADO! Pantalla limpiada.</color>");
                 break;
         }
+    }
+
+    /// <summary>
+    /// Tints this word blue and stops its fall for the given duration, then restores
+    /// its original speed and appearance. Called on OTHER words when a Freeze word is typed.
+    /// </summary>
+    public void ApplyFreeze(float duration)
+    {
+        if (freezeCoroutine != null) StopCoroutine(freezeCoroutine);
+        freezeCoroutine = StartCoroutine(FreezeRoutine(duration));
+    }
+
+    private IEnumerator FreezeRoutine(float duration)
+    {
+        fallSpeed = 0f;
+        if (wordText != null) wordText.color = new Color(0.3f, 0.6f, 1f); // blue tint
+
+        yield return new WaitForSeconds(duration);
+
+        fallSpeed = originalFallSpeed;
+        if (wordText != null) wordText.color = Color.white; // back to default; typed/untyped colors are re-applied via rich text tags on next TypeLetter/error call
+        freezeCoroutine = null;
+    }
+
+    /// <summary>
+    /// Scrambles this word's displayed characters briefly, then destroys it.
+    /// Called on OTHER words when a Glitch word is typed.
+    /// </summary>
+    public void PlayGlitchAndDestroy(float duration)
+    {
+        StopAllCoroutines(); // cancel any freeze in progress on this word, glitch takes priority
+        StartCoroutine(GlitchScrambleRoutine(duration));
+    }
+
+    private IEnumerator GlitchScrambleRoutine(float duration)
+    {
+        const string scrambleChars = "!@#$%^&*<>/\\";
+        float elapsed = 0f;
+        float tick = 0.05f;
+
+        while (elapsed < duration)
+        {
+            if (wordText != null && originalWord.Length > 0)
+            {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < originalWord.Length; i++)
+                    sb.Append(scrambleChars[Random.Range(0, scrambleChars.Length)]);
+
+                wordText.text = $"<color=#FF00FF>{sb}</color>";
+            }
+
+            elapsed += tick;
+            yield return new WaitForSeconds(tick);
+        }
+
+        Destroy(gameObject);
     }
 
     public void UpdateTextDisplay(bool hasError)
@@ -150,5 +228,13 @@ public class WordNode : MonoBehaviour
 
         string colorHex = hasError ? "#FF0000" : "#55FF55"; 
         wordText.text = $"<color={colorHex}>{typedPart}</color>{untypedPart}";
+
+        // If this word is the one currently targeted, echo progress to the terminal prompt.
+        // (Assumes some other script — likely your input handler — calls
+        // ShipController.Instance.SetTarget(transform) when this word becomes active.)
+        if (ShipController.Instance != null && ShipController.Instance.GetTarget() == transform)
+        {
+            ShipController.Instance.UpdateTypedText(typedPart, originalWord);
+        }
     }
 }

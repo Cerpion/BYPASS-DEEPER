@@ -15,6 +15,10 @@ public class GameManager : MonoBehaviour
     public int currentCombo = 0;
     public int comboMultiplier = 1;
 
+    [Header("Progresión de Niveles")]
+    [Tooltip("Puntaje acumulado necesario para pasar de la capa 1->2, 2->3, 3->4 respectivamente")]
+    public int[] depthThresholds = new int[] { 300, 700, 1300 };
+
     [Header("Estado del Juego")]
     public bool isGameOver = false;
 
@@ -44,6 +48,8 @@ public class GameManager : MonoBehaviour
             StartCoroutine(AnnounceLayerRoutine());
         }
 
+        if (AsciiRainEffect.Instance != null) AsciiRainEffect.Instance.SetLevel(depthLevel);
+
         UpdateUI();
     }
 
@@ -63,9 +69,12 @@ public class GameManager : MonoBehaviour
         comboMultiplier = 1 + (currentCombo / 5);
         score += (basePoints * comboMultiplier);
 
-        if (score >= depthLevel * 100 && depthLevel < 4)
+        if (depthLevel < 4 && (depthLevel - 1) < depthThresholds.Length && score >= depthThresholds[depthLevel - 1])
         {
             depthLevel++;
+
+            if (AsciiRainEffect.Instance != null) AsciiRainEffect.Instance.SetLevel(depthLevel);
+
             if (layerAnnouncementText != null)
             {
                 StartCoroutine(AnnounceLayerRoutine());
@@ -145,4 +154,4 @@ public class GameManager : MonoBehaviour
         GameOverManager.Instance.ActivarGameOver();
     }
 }
-} 
+}

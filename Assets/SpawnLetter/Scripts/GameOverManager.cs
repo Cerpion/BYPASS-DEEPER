@@ -15,6 +15,10 @@ public class GameOverManager : MonoBehaviour
     public TMP_Text finalTimeText;
     public TMP_Text bestTimeText;
 
+    [Header("Efectos IP / Glitch")]
+    public ZalgoGlitchText zalgoText;
+    public FakeIPGenerator fakeIpGenerator;
+
     private void Awake()
     {
         // Configuración del Singleton
@@ -46,6 +50,9 @@ public class GameOverManager : MonoBehaviour
             gameOverCanvasGroup.interactable = true;
             gameOverCanvasGroup.blocksRaycasts = true;
         }
+
+        if (zalgoText != null) zalgoText.TriggerGlitch();
+        if (fakeIpGenerator != null) fakeIpGenerator.TriggerReveal();
 
         Time.timeScale = 0f;
     }

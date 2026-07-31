@@ -7,15 +7,31 @@ public class WordSpawner : MonoBehaviour
     public float xBound = 5f; 
 
     [Header("Bancos de Palabras de la Deep Web")]
-    public string[] layer1Words = { "PING", "DATA", "NODE", "PORT", "HTML", "IP", "MAC", "USER" };
-    public string[] layer2Words = { "PROXY", "SERVER", "PYTHON", "HACKER", "ROUTER", "CACHE", "BOTNET" };
-    public string[] layer3Words = { "ENCRYPT", "FIREWALL", "PROTOCOL", "MALWARE", "SYSTEM", "PHISHING" };
-    public string[] layer4Words = { "SQL_INJECTION", "ROOT_ACCESS", "BYPASS_KEY", "OVERRIDE", "MAINFRAME" };
+    public string[] layer1Words = {
+        "PING", "DATA", "NODE", "PORT", "HTML", "IP", "MAC", "USER",
+        "BYTE", "WIFI", "SCAN", "LINK", "HOST", "BOOT", "DISK", "CODE",
+        "FILE", "LAN", "DNS", "USB", "RAM", "KEY", "BUG", "LOG"
+    };
+    public string[] layer2Words = {
+        "PROXY", "SERVER", "PYTHON", "HACKER", "ROUTER", "CACHE", "BOTNET",
+        "KERNEL", "SOCKET", "PACKET", "CLUSTER", "DAEMON", "BACKEND",
+        "KEYLOG", "SPYWARE", "NEXLINK", "VORTEXNET", "KRAKEN_NET"
+    };
+    public string[] layer3Words = {
+        "ENCRYPT", "FIREWALL", "PROTOCOL", "MALWARE", "SYSTEM", "PHISHING",
+        "RANSOMWARE", "KEYLOGGER", "BACKDOOR", "SANDBOX", "EXPLOIT",
+        "SPOOFING", "TUNNELING", "QUANTUMKEY", "CIPHERGRID", "DARKNODE"
+    };
+    public string[] layer4Words = {
+        "SQL_INJECTION", "ROOT_ACCESS", "BYPASS_KEY", "OVERRIDE", "MAINFRAME",
+        "ZERO_DAY_EXPLOIT", "KERNEL_PANIC", "DEEP_PACKET_SCAN", "GHOST_PROTOCOL",
+        "KRYPTON_CIPHER", "VOID_MAINFRAME", "NEXUS_OVERRIDE", "KRONOS_ARRAY"
+    };
 
     [Header("Banco de Power-Ups y Especiales")]
-    public string[] healWords = { "PATCH", "FIX", "HEAL", "RECOVER", "RESTORE" };
-    public string[] freezeWords = { "HALT", "FREEZE", "PAUSE", "SLOW", "LOCK" };
-    public string[] glitchWords = { "VIRUS", "CORRUPT", "GLITCH", "ERROR", "TROJAN" };
+    public string[] healWords = { "PATCH", "FIX", "HEAL", "RECOVER", "RESTORE", "REBOOT", "REBUILD" };
+    public string[] freezeWords = { "HALT", "FREEZE", "PAUSE", "SLOW", "LOCK", "STASIS", "DEADLOCK" };
+    public string[] glitchWords = { "VIRUS", "CORRUPT", "GLITCH", "ERROR", "TROJAN", "CRASH", "WORM" };
 
     private void Start()
     {
