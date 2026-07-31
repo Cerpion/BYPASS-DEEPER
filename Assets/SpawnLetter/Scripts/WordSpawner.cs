@@ -4,7 +4,9 @@ using UnityEngine;
 public class WordSpawner : MonoBehaviour
 {
     public GameObject wordPrefab;
-    public float xBound = 5f; 
+    public RectTransform canvas;
+    public RectTransform spawnA;
+    public RectTransform spawnB;
 
     [Header("Bancos de Palabras de la Deep Web")]
     public string[] layer1Words = {
@@ -69,12 +71,14 @@ public class WordSpawner : MonoBehaviour
             return;
         }
 
-        float randomX = Random.Range(-xBound, xBound);
-        Vector3 spawnPosition = new Vector3(randomX, transform.position.y, 0f);
+        float randomX = Random.Range(0f, 1f);
 
-        GameObject newWordObj = Instantiate(wordPrefab, spawnPosition, Quaternion.identity);
-        
-        newWordObj.transform.SetParent(null);
+        var spawnPosition = Vector3.Lerp(spawnA.position, spawnB.position, randomX);
+
+        GameObject newWordObj = Instantiate(wordPrefab, canvas);
+        newWordObj.GetComponent<RectTransform>().position = spawnPosition;
+
+        //newWordObj.transform.SetParent(null);
 
         WordNode wordNode = newWordObj.GetComponent<WordNode>();
 
@@ -105,6 +109,7 @@ public class WordSpawner : MonoBehaviour
                 selectedWord = GetRandomWordForCurrentLayer();
             }
 
+            wordNode.SetLimits(canvas.rect.height);
             wordNode.SetWord(selectedWord);
             wordNode.SetupSpecialType(chosenType);
         }

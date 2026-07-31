@@ -263,7 +263,7 @@ public class AsciiRainColumn : MonoBehaviour
 
         RegenerateColumn();
 
-        float startY = Random.Range(-manager.ContainerHeight(), 0f);
+        float startY = Random.Range(-manager.ContainerHeight(), 100f);
         rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, startY);
     }
 

@@ -14,6 +14,10 @@ public class MainMenuView : MonoBehaviour
     [SerializeField] private CinemachineCamera _creditsCamera;
     [SerializeField] private CinemachineCamera _mainCamera;
 
+    [SerializeField] private WordNode prefab;
+    [SerializeField] private RectTransform parent;
+    private WordNode current;
+
     private void Awake()
     {
         _startGame.onClick.AddListener(StartGame);
@@ -22,11 +26,20 @@ public class MainMenuView : MonoBehaviour
 
         _backTutorial.onClick.AddListener(BackTutorial);
         _backCredits.onClick.AddListener(BackCredits);
+        InstatiateNewTurotialText();
     }
+
+    private void InstatiateNewTurotialText()
+    {
+        current = Instantiate(prefab, prefab.transform.position, prefab.transform.rotation, parent);
+        current.gameObject.SetActive(true);
+        current.OnDestroy = InstatiateNewTurotialText;
+    }
+
 
     private void StartGame()
     {
-        ChangeSceneController.Instance.LoadSceneByIndex(0);
+        ChangeSceneController.Instance.LoadSceneByIndex(1);
         _mainCamera.Priority = 10;
     }
 

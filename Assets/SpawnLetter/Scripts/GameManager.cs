@@ -1,6 +1,6 @@
 using System.Collections;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
@@ -30,6 +30,11 @@ public class GameManager : MonoBehaviour
 
     [Header("UI de Capas (Deep Web)")]
     public TMP_Text layerAnnouncementText;
+    public AudioSource _fatalError;
+    public AudioSource _fatalError2;
+    public AudioSource _powerUp;
+    public AudioSource _points;
+    public AudioSource _music;
 
     private void Awake()
     {
@@ -68,10 +73,11 @@ public class GameManager : MonoBehaviour
         currentCombo++;
         comboMultiplier = 1 + (currentCombo / 5);
         score += (basePoints * comboMultiplier);
-
+        _points.Play();
         if (depthLevel < 4 && (depthLevel - 1) < depthThresholds.Length && score >= depthThresholds[depthLevel - 1])
         {
             depthLevel++;
+            _music.pitch =  1 + (((float)(depthLevel - 1) / 10) * 0.5f);
 
             if (AsciiRainEffect.Instance != null) AsciiRainEffect.Instance.SetLevel(depthLevel);
 
@@ -104,7 +110,20 @@ public class GameManager : MonoBehaviour
 
         ResetCombo();
         lives -= damage;
-        if (CameraShake.Instance != null) CameraShake.Instance.Shake(0.3f, 0.4f);
+        if (CameraShake.Instance != null)
+        {
+            if (lives > 0)
+            {
+                CameraShake.Instance.Shake(0.3f, 0.025f);
+            }
+
+            if (lives <= 0)
+            {
+                CameraShake.Instance.Shake(0.3f, 0.0015f);
+            }
+            _fatalError.Play();
+            _fatalError2.Play();
+        }
 
         UpdateUI();
         if (lives <= 0) GameOver();
@@ -115,7 +134,7 @@ public class GameManager : MonoBehaviour
         if (scoreText != null) scoreText.text = $"SCORE: {score}";
         if (livesText != null) livesText.text = $"INTEGRITY: {lives}";
         if (depthText != null) depthText.text = $"LAYER: -{depthLevel}";
-        if (comboText != null) comboText.text = $"COMBO: x{comboMultiplier}";
+        if (comboText != null) comboText.text = $"X{comboMultiplier}";
     }
 
   private IEnumerator AnnounceLayerRoutine()
@@ -154,4 +173,9 @@ public class GameManager : MonoBehaviour
         GameOverManager.Instance.ActivarGameOver();
     }
 }
+
+    public void PowerUp()
+    {
+        _powerUp.Play();
+    }
 }

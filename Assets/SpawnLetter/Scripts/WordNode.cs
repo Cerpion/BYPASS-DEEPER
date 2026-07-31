@@ -1,7 +1,7 @@
-using UnityEngine;
-using TMPro;
 using System.Collections;
 using System.Text;
+using TMPro;
+using UnityEngine;
 
 public enum WordType { Normal, Heal, Freeze, Glitch }
 
@@ -22,9 +22,12 @@ public class WordNode : MonoBehaviour
 
     [HideInInspector]
     public TMP_Text wordText;
+    private RectTransform _rect;
+    [SerializeField] private float _yMaxLimit;
 
     private float originalFallSpeed;
     private Coroutine freezeCoroutine;
+    public System.Action OnDestroy;
 
     private void Awake()
     {
@@ -33,6 +36,7 @@ public class WordNode : MonoBehaviour
             wordText = GetComponent<TMP_Text>();
         }
 
+        _rect = GetComponent<RectTransform>();
         originalFallSpeed = fallSpeed;
     }
 
@@ -42,14 +46,20 @@ public class WordNode : MonoBehaviour
 
         transform.Translate(Vector3.down * fallSpeed * Time.deltaTime, Space.World);
 
-        if (transform.position.y < destroyY)
+        if (_rect.anchoredPosition.y < -_yMaxLimit)
         {
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.TakeDamage(1);
             }
+            OnDestroy?.Invoke();
             Destroy(gameObject);
         }
+    }
+
+    public void SetLimits(float rectHeight)
+    {
+        _yMaxLimit = rectHeight + destroyY;
     }
 
     public void SetWord(string word)
@@ -99,6 +109,7 @@ public class WordNode : MonoBehaviour
                 GameManager.Instance.AddScore(originalWord.Length);
             }
 
+            OnDestroy?.Invoke();
             Destroy(gameObject);
         }
     }
@@ -121,6 +132,7 @@ public class WordNode : MonoBehaviour
                 if (GameManager.Instance != null)
                 {
                     GameManager.Instance.lives++;
+                    GameManager.Instance.PowerUp();
                     Debug.Log("<color=green>¡HEAL ACTIVADO! Vida recuperada.</color>");
                 }
 
@@ -135,6 +147,7 @@ public class WordNode : MonoBehaviour
                 {
                     if (w != this) w.ApplyFreeze(freezeDuration);
                 }
+                GameManager.Instance.PowerUp();
 
                 if (AsciiRainEffect.Instance != null)
                     AsciiRainEffect.Instance.TriggerFreeze(freezeDuration);
@@ -149,6 +162,7 @@ public class WordNode : MonoBehaviour
                 {
                     if (w != this) w.PlayGlitchAndDestroy(glitchScrambleDuration);
                 }
+                GameManager.Instance.PowerUp();
 
                 if (AsciiRainEffect.Instance != null)
                     AsciiRainEffect.Instance.TriggerGlitch(glitchScrambleDuration);
@@ -211,6 +225,7 @@ public class WordNode : MonoBehaviour
             yield return new WaitForSeconds(tick);
         }
 
+        OnDestroy?.Invoke();
         Destroy(gameObject);
     }
 

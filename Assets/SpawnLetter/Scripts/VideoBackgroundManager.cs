@@ -5,7 +5,7 @@ public class VideoBackgroundManager : MonoBehaviour
 {
     [Header("Las RawImages de los 4 Fondos")]
     // Arrastra aquí las RawImages de Fondo_L1, Fondo_L2, Fondo_L3 y Fondo_L4
-    public RawImage[] imagenesFondo = new RawImage[4];
+    public Image[] imagenesFondo = new Image[4];
 
     private int ultimoNivel = -1;
 

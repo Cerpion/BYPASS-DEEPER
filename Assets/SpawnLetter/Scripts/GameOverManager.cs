@@ -9,7 +9,9 @@ public class GameOverManager : MonoBehaviour
 
     [Header("Referencias UI")]
     public CanvasGroup gameOverCanvasGroup;
+    public GameObject _mainButton;
     public Button botonReiniciar;
+    public Button botonSalir;
 
     [Header("Tiempo")]
     public TMP_Text finalTimeText;
@@ -34,10 +36,8 @@ public class GameOverManager : MonoBehaviour
 
         OcultarGameOver();
 
-        if (botonReiniciar != null)
-        {
-            botonReiniciar.onClick.AddListener(ReiniciarNivel);
-        }
+        botonReiniciar.onClick.AddListener(ReiniciarNivel);
+        botonSalir.onClick.AddListener(SalirNivel);
     }
 
     public void ActivarGameOver()
@@ -49,6 +49,8 @@ public class GameOverManager : MonoBehaviour
             gameOverCanvasGroup.alpha = 1f;
             gameOverCanvasGroup.interactable = true;
             gameOverCanvasGroup.blocksRaycasts = true;
+            _mainButton.gameObject.SetActive(true);
+
         }
 
         if (zalgoText != null) zalgoText.TriggerGlitch();
@@ -84,8 +86,15 @@ public class GameOverManager : MonoBehaviour
 
     public void ReiniciarNivel()
     {
+        //SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        ChangeSceneController.Instance.ReloadCurrentScene();
+    }
+
+    public void SalirNivel()
+    {
+        Time.timeScale = 1f;
+        ChangeSceneController.Instance.LoadSceneByIndex(0);
     }
 
     // ===============================

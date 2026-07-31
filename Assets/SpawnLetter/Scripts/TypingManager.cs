@@ -10,6 +10,15 @@ public class TypingManager : MonoBehaviour
     public GameObject floatingTextPrefab;
     public GameObject hackParticlesPrefab;
 
+    public Canvas _canvasParent;
+    public Camera _canvasCamera;
+    public Transform _floatingTextParent;
+
+    [Header("Audio")]
+    public AudioSource _error;
+    public AudioSource _typing;
+    public AudioClip[] _key;
+
     private void OnEnable()
     {
         if (Keyboard.current != null)
@@ -32,6 +41,10 @@ public class TypingManager : MonoBehaviour
             return;
 
         ProcessInput(char.ToUpper(ch));
+
+        var randomKey = _key[Random.Range(0, _key.Length)];
+        _typing.clip = randomKey;
+        _typing.Play();
     }
 
     private void ProcessInput(char letter)
@@ -107,7 +120,8 @@ public class TypingManager : MonoBehaviour
 
         if (CameraShake.Instance != null)
         {
-            CameraShake.Instance.Shake(0.1f, 0.15f);
+            CameraShake.Instance.Shake(0.1f, 0.005f);
+            _error.Play();
         }
     }
 
@@ -123,16 +137,23 @@ public class TypingManager : MonoBehaviour
             ShipController.Instance.ClearTarget();
         }
 
-        Vector3 spawnPos = new Vector3(
-            activeWordNode.transform.position.x,
-            activeWordNode.transform.position.y,
-            -2f);
+        RectTransform rect = activeWordNode.GetComponent<RectTransform>();
+
+        Camera uiCamera = _canvasParent.worldCamera;
+        Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(uiCamera, rect.position);
+        Vector3 worldPos = _canvasCamera.ScreenToWorldPoint( new Vector3(screenPos.x, screenPos.y, 5));
+
+
+        //Vector3 spawnPos = new Vector3(
+        //    activeWordNode.transform.position.x,
+        //    activeWordNode.transform.position.y,
+        //    0);
 
         if (hackParticlesPrefab != null)
         {
             GameObject fx = Instantiate(
                 hackParticlesPrefab,
-                spawnPos,
+                worldPos,
                 Quaternion.identity);
 
             fx.transform.localScale = Vector3.one;
@@ -148,7 +169,7 @@ public class TypingManager : MonoBehaviour
             GameObject floatObj = Instantiate(
                 floatingTextPrefab,
                 activeWordNode.transform.position,
-                Quaternion.identity);
+                Quaternion.identity, _floatingTextParent);
 
             floatObj.transform.localScale = Vector3.one;
 

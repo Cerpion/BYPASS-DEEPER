@@ -33,6 +33,7 @@ public class ShipController : MonoBehaviour
 
     private bool cursorVisible = true;
     private float cursorTimer;
+    public AudioSource terminalMove;
 
     private void Awake()
     {
@@ -70,6 +71,7 @@ public class ShipController : MonoBehaviour
 
     public void SetTarget(Transform target)
     {
+        terminalMove.Play();
         currentTarget = target;
         lastTyped = "";
         lastFull = "";

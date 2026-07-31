@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 618686385422977910}
   - component: {fileID: 8282252413215445727}
   - component: {fileID: 9035760663341291218}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: HackParticlesPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
