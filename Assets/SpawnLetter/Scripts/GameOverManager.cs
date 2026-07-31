@@ -54,6 +54,8 @@ public class GameOverManager : MonoBehaviour
         if (zalgoText != null) zalgoText.TriggerGlitch();
         if (fakeIpGenerator != null) fakeIpGenerator.TriggerReveal();
 
+        LimpiarPalabras();
+
         Time.timeScale = 0f;
     }
 
@@ -64,6 +66,19 @@ public class GameOverManager : MonoBehaviour
             gameOverCanvasGroup.alpha = 0f;
             gameOverCanvasGroup.interactable = false;
             gameOverCanvasGroup.blocksRaycasts = false;
+        }
+    }
+
+    /// <summary>
+    /// Destroys every currently-falling word so the game over screen isn't
+    /// cluttered behind it. Relies on word prefabs being tagged "Word".
+    /// </summary>
+    private void LimpiarPalabras()
+    {
+        GameObject[] palabrasActivas = GameObject.FindGameObjectsWithTag("Word");
+        foreach (GameObject palabra in palabrasActivas)
+        {
+            Destroy(palabra);
         }
     }
 

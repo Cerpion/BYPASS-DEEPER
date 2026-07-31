@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3846175248384505486}
   m_Layer: 0
   m_Name: WordPrefab
-  m_TagString: Untagged
+  m_TagString: Word
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -199,4 +199,7 @@ MonoBehaviour:
   myType: 0
   fallSpeed: 2
   destroyY: -4.5
+  freezeDuration: 3
+  glitchScrambleDuration: 0.3
+  healGlowDuration: 1
   wordText: {fileID: 0}
